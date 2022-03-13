@@ -9,29 +9,19 @@ from json import load, dump
 from .card import Card
 
 
-_cards_DIR = "black_jack\cards.json"
-
-def load__cards():
-    with open(_cards_DIR, 'r') as f:
-        return load(f)
-
-CARD_FIGURES = load__cards()['card']
-CARD_COLORS = load__cards()['color']
-
-
 class BaseDeck(ABC):
-    """_summary_
+    """This is an abstract class that describes a deck of cards.
 
     Arguments:
-        ABC -- _description_
+        ABC -- abstract class
     """
     
     def __init__(self) -> None:
-        self._cards = [Card]
-        self._prepare__cards()
+        self._cards = []
+        self._prepare_deck()
 
     @property
-    def cards(self) -> list[Card]:
+    def cards(self) -> list:
         """This method returns list of cards
 
         Returns:
@@ -40,13 +30,18 @@ class BaseDeck(ABC):
         return self._cards
 
     @abstractmethod
-    def _prepare__cards(self) -> None:
-        """_summary_
+    def _prepare_deck(self) -> None:
+        """
+            this is a private method that allows you to create all the cards 
+            in your deck. This method is always run when the object is 
+            initialized.
         """
         pass
 
     @abstractmethod
     def shuffle(self):
+        """this method shoud allows you to shuffle the deck of cards
+        """
         pass
 
     @abstractmethod
@@ -55,18 +50,19 @@ class BaseDeck(ABC):
 
 
 class Deck(BaseDeck):
-    """_summary_
+    """This is classic deck class
 
     Arguments:
-        BaseDeck -- _description_
-
-    Returns:
-        _description_
+        BaseDeck -- abstract class of deck
+        CARD_TEMPLATES -- localization of json file as a template of cards
     """
     CARD_TEMPLATES = "black_jack\cards.json"
 
-    def _prepare__cards(self) -> None:
-        """_summary_
+    def _prepare_deck(self) -> None:
+        """
+            this is a private method that allows you to create all the cards 
+            in your deck. This method is always run when the object is 
+            initialized.
         """
         with open(self.CARD_TEMPLATES, 'r') as f:
             cards = load(f)
@@ -76,7 +72,7 @@ class Deck(BaseDeck):
                 self._cards.append(Card(key, value, color))
     
     def shuffle(self) -> None:
-        """_summary_
+        """this method shoud allows you to shuffle the deck of cards
         """
         shuffle(self._cards)
 

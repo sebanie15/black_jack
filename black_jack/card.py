@@ -1,53 +1,114 @@
-"""_summary_
+"""
 
 Returns:
     _description_
 """
 
 from abc import ABC, abstractmethod
-import re
-
-
-
-class CardColor:
-
-    def __init__(self, color_value: str) -> None:
-        self.color_value = color_value
 
 
 class BaseCard(ABC):
-    """_summary_
-
-    Arguments:
-        ABC -- _description_
+    """An abstract representation of the base class that describes the card
+ 
     """
-
+    @abstractmethod
     def __init__(self, figure: str, value: int, color) -> None:
-        """_summary_
+        """Object initialization
 
-        Arguments:
-            figure -- _description_
-            value -- _description_
-            color -- _description_
+        Args:
+            figure (str): figure name
+            value (int): the numerical value of the card
+            color (): card suit reprezentation
         """
         self._figure = figure
         self._value = value
         self._color = color
 
-    def __str__(self):
-        return f"{self._figure} - {self._color}.decode('unicode')"
+    @abstractmethod
+    def __str__(self) -> str:
+        """The special method is responsible for returning the text defined 
+        when displaying the object
 
-    def __repr__(self):
-        return f'{self._figure} - {self._color}'
+        Returns:
+            str: text describing the object
+        """
+        pass
+
+    @abstractmethod
+    def __repr__(self) -> str:
+        """The special method is responsible for returning the text defined 
+        during the representation of the object
+
+        Returns:
+            str: object reprezentation
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def figure(self) -> str:
+        """Property theat describes the figure
+
+        Returns:
+            str: text representation of a figure
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def value(self) -> int:
+        """Property type method that determines the value of the card
+
+        Returns:
+            int: the numerical value of the card
+        """
+        pass
+
+
+class Card(BaseCard):
+    """_summary_
+
+    Args:
+        BaseCard (class): abstract class of Card
+    """
+    
+    def __init__(self, figure: str, value: int, color) -> None:
+        super().__init__(figure, value, color)
+
+    def __str__(self) -> str:
+        """The special method is responsible for returning the text defined 
+        when displaying the object
+            e.g. str(Card)
+
+        Returns:
+            str: text describing the object
+        """
+        return f"{self._figure}-{self._color}"
+
+    def __repr__(self) -> str:
+        """The special method is responsible for returning the text defined 
+        during the representation of the object
+            e.g. print([Card])
+
+        Returns:
+            str: text representation of a figure
+        """
+        return f'{self._figure}-{self._color}'
 
     @property
     def figure(self) -> str:
+        """Property theat describes the figure
+
+        Returns:
+            str: text representation of a figure
+        """
         return self._figure
 
     @property
     def value(self) -> int:
+        """Property type method that determines the value of the card
+
+        Returns:
+            int: the numerical value of the card
+        """
         return self._value
-
-
-class Card(BaseCard):
-    pass
