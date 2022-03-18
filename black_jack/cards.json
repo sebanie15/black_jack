@@ -1,5 +1,6 @@
 {
-    "card": {
+    "figures": {
+        "Ace": 1,
         "2": 2,
         "3": 3,
         "4": 4,
@@ -11,13 +12,12 @@
         "10": 10,
         "Jack": 10,
         "Queen": 10,
-        "King": 10,
-        "As": 11
+        "King": 10
     },
-    "color":{
-        "pik": "pik",
-        "kier": "kier",
-        "trefl": "trefl",
-        "karo": "karo"
+    "colors":{
+        "kier": "\u2661",
+        "karo": "\u2662",
+        "pik": "\u2664",
+        "trefl": "\u2667"
     }
 }
