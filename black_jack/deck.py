@@ -7,6 +7,7 @@ from random import shuffle
 from json import load
 
 from .card import Card
+from black_jack.exceptions import NoCardsInDeck
 
 
 class BaseDeck(ABC):
@@ -15,7 +16,8 @@ class BaseDeck(ABC):
     Arguments:
         ABC -- abstract class
     """
-    def __init__(self) -> None:
+    def __init__(self, number_of_decks: int = 1) -> None:
+        self._number_of_decks = number_of_decks
         self._cards = []
         self._prepare_deck()
 
@@ -58,26 +60,31 @@ class Deck(BaseDeck):
             this is a private method that allows you to create all the cards
             in your deck. This method is always run when the object is
             initialized.
-            1. reset the list of cards
-            2. load templates for cards
-            3. create cards
+
         """
+        # 1. reset the list of cards
+        # 2. load templates for cards
+        # 3. create cards
         self._cards = []
         with open(self.CARD_TEMPLATES, 'r', encoding='utf-8') as f:
             cards = load(f)
 
-        for key, value in cards["figures"].items():
-            for color in cards["colors"].values():
-                self._cards.append(Card(key, value, color))
+        for _ in range(self._number_of_decks):
+            for key, value in cards["figures"].items():
+                for color in cards["colors"].values():
+                    self._cards.append(Card(key, value, color))
 
     def shuffle(self) -> None:
         """ this method shoud allows you to shuffle the deck of cards """
         shuffle(self._cards)
 
-    def hit(self):
+    def hit(self) -> Card:
         """_summary_
 
         Returns:
             Its return one card or None
         """
-        return self._cards.pop() if len(self._cards) > 0 else None
+        if self._cards:
+            return self._cards.pop()
+        else: 
+            raise NoCardsInDeck('There is no more cards in deck!')
