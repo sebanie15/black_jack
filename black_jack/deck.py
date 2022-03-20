@@ -7,7 +7,10 @@ from random import shuffle
 from json import load
 
 from .card import Card
-from black_jack.exceptions import NoCardsInDeck
+from .exceptions import (
+    NoCardsInDeck,
+    NumberOfDecksOutOfRange
+)
 
 
 class BaseDeck(ABC):
@@ -15,20 +18,23 @@ class BaseDeck(ABC):
 
     Arguments:
         ABC -- abstract class
+        CARD_TEMPLATES -- localization of json file as a template of cards
+        MAX_NUMBER_OF_DECKS -- maximum number of decks
     """
-    def __init__(self, number_of_decks: int = 1) -> None:
-        self._number_of_decks = number_of_decks
+    CARD_TEMPLATES = "black_jack\cards.json"
+
+    def __init__(self) -> None:
         self._cards = []
         self._prepare_deck()
 
     @property
+    @abstractmethod
     def cards(self) -> list:
-        """This method returns list of cards
+        """This property returns list of cards
 
         Returns:
-            list of cards
+            List: list of cards
         """
-        return self._cards
 
     @abstractmethod
     def _prepare_deck(self) -> None:
@@ -38,53 +44,48 @@ class BaseDeck(ABC):
         """
 
     @abstractmethod
-    def shuffle(self):
-        """ this method shoud allows you to shuffle the deck of cards """
+    def __len__(self) -> int:
+        """_summary_
 
-    @abstractmethod
-    def hit(self) -> Card:
-        """ method should return one card from list """
-
+        Returns:
+            _description_
+        """
 
 class Deck(BaseDeck):
     """This is classic deck class
 
     Arguments:
         BaseDeck -- abstract class of deck
-        CARD_TEMPLATES -- localization of json file as a template of cards
+        
     """
-    CARD_TEMPLATES = "black_jack\cards.json"
+
+    @property
+    def cards(self):
+        # return list of cards
+        return self._cards
 
     def _prepare_deck(self) -> None:
-        """
-            this is a private method that allows you to create all the cards
-            in your deck. This method is always run when the object is
-            initialized.
-
-        """
-        # 1. reset the list of cards
-        # 2. load templates for cards
-        # 3. create cards
+        # reset the list of cards
         self._cards = []
+        # load templates for cards
         with open(self.CARD_TEMPLATES, 'r', encoding='utf-8') as f:
             cards = load(f)
+        # create cards
+        for key, value in cards["figures"].items():
+            for color in cards["colors"].values():
+                self._cards.append(Card(key, int(value), color))
 
-        for _ in range(self._number_of_decks):
-            for key, value in cards["figures"].items():
-                for color in cards["colors"].values():
-                    self._cards.append(Card(key, value, color))
+    def __len__(self) -> int:
+        # return len of cards list
+        return len(self._cards)
 
-    def shuffle(self) -> None:
-        """ this method shoud allows you to shuffle the deck of cards """
-        shuffle(self._cards)
+    def __iter__(self):
+        self.n = 0
+        return self._cards.__iter__()
 
-    def hit(self) -> Card:
-        """_summary_
-
-        Returns:
-            Its return one card or None
-        """
-        if self._cards:
-            return self._cards.pop()
-        else: 
-            raise NoCardsInDeck('There is no more cards in deck!')
+    def __next__(self) -> Card:
+        if self.n < len(self._cards) - 1:
+            result = self._cards[self.n]
+            self.n += 1
+            return result
+        raise StopIteration
