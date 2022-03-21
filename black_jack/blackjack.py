@@ -6,10 +6,12 @@ module contains class definitions for the blackjack game
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+import os
 
 from .player import Player, Croupier
 # from black_jack.deck import Deck
 from .boot import Boot
+from .deck import Deck
 from .exceptions import (
     NotAvailablePlayersException, 
     IsNotInstanceOfPlayerClass,
@@ -100,6 +102,7 @@ class BaseBlackJack(ABC):
         Args:
             player (Player): Player object
         """
+
     @abstractmethod
     def play(self) -> None:
         """ This is the method that starts every game.
@@ -228,6 +231,39 @@ class BlackJackUI(BlackJack):
         BlackJack -- _description_
     """
     def play(self):
-        super().play()
+        try:
+            super().play()
+        except NotAvailablePlayersException:
+            pass
+        
+        # add cards to the boot
+        try:
+            deck_count = int(input('Podaj iloma taliami będziesz grał (1-8): '))
+        except ValueError as e:
+            print(e)
+        else:
+            self.boot.add_cards(Deck(), deck_count)
+            self.boot.shuffle() 
 
+        # add player or players
+        self.add_player(Player(
+            input('Podaj imię gracza: ')
+        ))
+
+        while True:
+            command = input('Czy chcesz wprowadzić gracza? T/n: ').upper()
+            if command in ['', 'T']:
+                self.add_player(Player(input('Podaj imię gracza : ')))
+            elif command == 'N':
+                break
+
+
+    def clear_screen():
+        command = 'clear'
+        if os.name in ('nt', 'dos'):  # If Machine is running on Windows, use cls
+            command = 'cls'
+        os.system(command)
+
+    def print_screen():
+        pass
 
