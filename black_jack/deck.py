@@ -21,7 +21,7 @@ class BaseDeck(ABC):
         CARD_TEMPLATES -- localization of json file as a template of cards
         MAX_NUMBER_OF_DECKS -- maximum number of decks
     """
-    CARD_TEMPLATES = "black_jack\cards.json"
+    CARD_TEMPLATES = "black_jack/cards.json"
 
     def __init__(self) -> None:
         self._cards = []

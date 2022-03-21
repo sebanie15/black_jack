@@ -29,6 +29,15 @@ class BaseBlackJack(ABC):
 
     """
     MAX_NUMBER_OF_PLAYERS = 6
+    COMMANDS = [
+            'hit', 
+            'stand', 
+            'add_player', 
+            'start_game', 
+            'play_croupier',
+            'summary',
+            'replay'
+    ]
 
     def __init__(self) -> None:
         self._players = []
@@ -84,6 +93,10 @@ class BaseBlackJack(ABC):
             Player: Player object
         """
 
+    @abstractmethod
+    def command(self, cmd: str):
+        """_summary_
+        """
     @abstractmethod
     def next_player(self) -> Player:
         """
@@ -150,6 +163,15 @@ class BlackJack(BaseBlackJack):
             raise IsNotInstanceOfBootClass('The boot must be instance of Boot')
 
         self._boot = boot
+
+    def command(self, cmd: str):
+        if cmd == 'hit':
+            self.player.hit()
+        elif cmd == 'stand':
+            self.player.stand()
+        elif cmd == 'replay':
+            pass
+
 
     def add_player(self, player: Player) -> None:
         # check if player is instance of Player class
@@ -231,11 +253,11 @@ class BlackJackUI(BlackJack):
         BlackJack -- _description_
     """
     def play(self):
-        try:
-            super().play()
-        except NotAvailablePlayersException:
-            pass
-        
+        # try:
+        #     super().play()
+        # except NotAvailablePlayersException:
+        #     pass
+
         # add cards to the boot
         try:
             deck_count = int(input('Podaj iloma taliami będziesz grał (1-8): '))
@@ -246,17 +268,89 @@ class BlackJackUI(BlackJack):
             self.boot.shuffle() 
 
         # add player or players
+        self._add_players()
+        # start game - two cards for each player and croupier
+        self._start_game()
+
+        while True:
+            for player in self.players:
+                while True:
+                    self._clear_screen()
+                    self._print_screen()
+                    print('-' * 66)
+                    print(f'{player}:')
+                    print()
+                    command = input('Co chcesz zrobić? 0 - hit, 1 - stand:    ')
+                    if command == '0':
+                        player.hit()
+                        # os.system('clear')
+                    if command == '1' or player.points >= 21:
+                        break
+        
+        # self.croupier.play()
+            os.system('clear')
+            self._play_croupier()
+            self._print_screen(True)
+            print('+' * 60)
+            print(f'Winner: ?')
+            print('+' * 66)
+            command = input('Czy rozpocząć nową grę? T/n:  ').upper()
+            if command in ['', 'T']:
+                for player in self.players:
+                    # start game - two cards for each player and croupier
+                    self._start_game()
+                    print(f'{self.croupier} ')
+            elif command == 'N':
+                break
+
+    def _play_croupier(self):
+        while self.croupier.points <= 17:
+            self.croupier.hit()
+        if self.croupier.points < 21:
+            for player in self.players:
+                if player.points <= 21 and self.croupier.points < player.points:
+                    self.croupier.hit()
+
+    # def 
+
+    @staticmethod
+    def _clear_screen():
+        command = 'clear'
+        if os.name in ('nt', 'dos'):  # If Machine is running on Windows, use cls
+            command = 'cls'
+        os.system(command)
+
+    def _print_screen(self, croupier_points: bool = False):
+        if croupier_points:
+            print(f'{str(self.croupier):>25} -> {str(self.croupier.cards):>32}:' +
+            f'{str(self.croupier.points):>3}')
+        else:
+            print(f'{str(self.croupier):>25} -> [{str(self.croupier.cards[0]):>27}, ?]')
+
+        for player in self.players:
+            print(f'{str(player):>25} -> {str(player.cards):>32}: {str(player.points):>3}')
+        
+    def _add_players(self):
+        # add first player - game need minimum one player
         self.add_player(Player(
             input('Podaj imię gracza: ')
         ))
-
+        # add other players - if it's needed
         while True:
-            command = input('Czy chcesz wprowadzić gracza? T/n: ').upper()
+            command = input('Czy chcesz wprowadzić kolejnego gracza? T/n: ').upper()
             if command in ['', 'T']:
                 self.add_player(Player(input('Podaj imię gracza : ')))
             elif command == 'N':
                 break
 
+    def _start_game(self):
+        # two cards for each player
+        for player in self.players:
+            player.clear_cards()
+            player.hit(2)
+        # two cards for croupier
+        self.croupier.clear_cards()
+        self.croupier.hit(2)
 
     def clear_screen():
         command = 'clear'
